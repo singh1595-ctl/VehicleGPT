@@ -13,6 +13,7 @@ from sklearn.ensemble import IsolationForest
 import plotly.express as px
 import plotly.graph_objects as go
 import requests
+import plotly.graph_objects as go
 import streamlit as st
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
@@ -39,71 +40,105 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-/* VehicleGPT - clean light professional theme */
+/* VehicleGPT - clean dark professional theme */
 :root {
-    color-scheme: light;
-    --vg-primary: #2563eb;
-    --vg-primary-dark: #1d4ed8;
-    --vg-ink: #172554;
-    --vg-muted: #64748b;
-    --vg-border: #dbe5f1;
-    --vg-surface: #ffffff;
-    --vg-page: #f3f7fc;
+    color-scheme: dark;
+    --vg-primary: #38bdf8;
+    --vg-primary-dark: #0284c7;
+    --vg-ink: #f1f5f9;
+    --vg-muted: #94a3b8;
+    --vg-border: #334155;
+    --vg-surface: #172033;
+    --vg-page: #0b1220;
 }
+
 .stApp {
     background: var(--vg-page) !important;
-    color: #1e293b !important;
+    color: #f1f5f9 !important;
 }
+
 [data-testid="stHeader"] {
-    background: rgba(243, 247, 252, 0.92) !important;
+    background: #0b1220 !important;
 }
+
 [data-testid="stSidebar"] {
-    background: #eaf2ff !important;
-    border-right: 1px solid #d5e3f7;
+    background: #111827 !important;
+    border-right: 1px solid #334155;
 }
+
 [data-testid="stSidebar"] * {
-    color: #1e3a8a;
+    color: #e2e8f0 !important;
 }
+
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
-    color: #334155;
+    color: #cbd5e1;
 }
+
 .stMarkdown, .stText, p, label, span {
     color: inherit;
 }
+
 h1, h2, h3, h4 {
     color: var(--vg-ink) !important;
     font-weight: 750 !important;
 }
+
 [data-testid="stMetric"] {
-    background: #ffffff;
+    background: #172033;
     border: 1px solid var(--vg-border);
     border-radius: 14px;
     padding: 14px 16px;
-    box-shadow: 0 3px 12px rgba(30, 64, 175, 0.05);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
 }
-[data-testid="stMetricLabel"] { color: #64748b !important; }
-[data-testid="stMetricValue"] { color: #1e40af !important; }
+
+[data-testid="stMetricLabel"] {
+    color: #94a3b8 !important;
+}
+
+[data-testid="stMetricValue"] {
+    color: #38bdf8 !important;
+}
+
 .metric-card {
-    background: linear-gradient(145deg, #ffffff, #edf4ff);
-    border: 1px solid #d7e5f7;
+    background: linear-gradient(145deg, #172033, #111827);
+    border: 1px solid #334155;
     border-radius: 16px;
     padding: 18px;
     min-height: 125px;
-    box-shadow: 0 4px 14px rgba(30, 64, 175, 0.06);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
-.metric-label { color: #64748b; font-size: 13px; font-weight: 600; }
-.metric-value { color: #1d4ed8; font-size: 28px; font-weight: 800; margin-top: 8px; }
-.metric-note { color: #0f766e; font-size: 12px; margin-top: 8px; }
+
+.metric-label {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.metric-value {
+    color: #38bdf8;
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 8px;
+}
+
+.metric-note {
+    color: #5eead4;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
 [data-testid="stVerticalBlockBorderWrapper"],
 [data-testid="stExpander"],
 [data-testid="stDataFrame"],
 [data-testid="stTable"] {
     border-color: var(--vg-border) !important;
 }
+
 [data-testid="stVerticalBlockBorderWrapper"] {
-    background: #ffffff;
+    background: #172033;
     border-radius: 14px;
 }
+
 .stButton > button, .stDownloadButton > button {
     background: var(--vg-primary) !important;
     color: #ffffff !important;
@@ -111,28 +146,35 @@ h1, h2, h3, h4 {
     border-radius: 9px !important;
     font-weight: 650 !important;
 }
+
 .stButton > button:hover, .stDownloadButton > button:hover {
     background: var(--vg-primary-dark) !important;
     border-color: var(--vg-primary-dark) !important;
     color: #ffffff !important;
 }
+
 .stTextInput input, .stNumberInput input, .stDateInput input,
 .stTimeInput input, .stTextArea textarea,
 [data-baseweb="select"] > div {
-    background: #ffffff !important;
-    color: #1e293b !important;
-    border-color: #cbd5e1 !important;
+    background: #172033 !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
     border-radius: 8px !important;
 }
-[data-testid="stAlert"] { border-radius: 10px; }
-hr { border-color: #dbe5f1 !important; }
+
+[data-testid="stAlert"] {
+    border-radius: 10px;
+}
+
+hr {
+    border-color: #334155 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "vehicle_anomaly_model.pkl"
 DB_PATH = BASE_DIR / "vehicle_history.db"
-
 
 # ----------------------- Database -------------------------
 
@@ -694,83 +736,81 @@ pm_speed = st.number_input(
     key="pm_speed",
 )
 
+# ---------------- Temperature and Speed Meters ----------------
 
+gauge1, gauge2 = st.columns(2)
+
+with gauge1:
+    temp_gauge = go.Figure(
+        go.Indicator(
+            mode="gauge+number",
+            value=pm_temp,
+            title={"text": "Engine Temperature (°C)"},
+            gauge={
+                "axis": {"range": [0, 140]},
+                "bar": {"color": "#38BDF8"},
+                "steps": [
+                    {"range": [0, 95], "color": "#1f6b4a"},
+                    {"range": [95, 110], "color": "#9a6b17"},
+                    {"range": [110, 140], "color": "#8b2d35"},
+                ],
+            },
+        )
+    )
+
+    temp_gauge.update_layout(
+        height=250,
+        margin=dict(l=20, r=20, t=45, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="white",
+    )
+
+    st.plotly_chart(temp_gauge, use_container_width=True)
+
+with gauge2:
+    speed_gauge = go.Figure(
+        go.Indicator(
+            mode="gauge+number",
+            value=pm_speed,
+            title={"text": "Vehicle Speed (km/h)"},
+            gauge={
+                "axis": {"range": [0, 180]},
+                "bar": {"color": "#38BDF8"},
+                "steps": [
+                    {"range": [0, 120], "color": "#1f6b4a"},
+                    {"range": [120, 150], "color": "#9a6b17"},
+                    {"range": [150, 180], "color": "#8b2d35"},
+                ],
+            },
+        )
+    )
+
+    speed_gauge.update_layout(
+        height=250,
+        margin=dict(l=20, r=20, t=45, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="white",
+    )
+
+    st.plotly_chart(speed_gauge, use_container_width=True)
+
+# ---------------- Analyze Maintenance ----------------
 
 if st.button("Analyze Maintenance Status", key="pm_analyze"):
-    pm_result = predictive_maintenance(
-        pm_temp,
-        pm_voltage,
-        pm_speed,
-    )
+    # Yahan apna purana analysis wala code rakhein
+    ...
 
-    st.session_state.pm_result = pm_result
-    st.session_state.saved_pm_temp = pm_temp
-    st.session_state.saved_pm_voltage = pm_voltage
-    st.session_state.saved_pm_speed = pm_speed
-
-    save_maintenance_record(
-        timestamp=datetime.now().isoformat(timespec="seconds"),
-        temp=pm_temp,
-        voltage=pm_voltage,
-        speed=pm_speed,
-        risk_level=pm_result["risk_level"],
-        maintenance_priority=pm_result["maintenance_priority"],
-        alerts=pm_result["alerts"],
-    )
-
-
-if "pm_result" in st.session_state:
-    pm_result = st.session_state.pm_result
-
-    st.markdown("### Maintenance Risk Assessment")
-
-    if pm_result["risk_level"] == "CRITICAL":
-        st.error("Risk Level: CRITICAL")
-    elif pm_result["risk_level"] == "HIGH":
-        st.warning("Risk Level: HIGH")
-    else:
-        st.success("Risk Level: NORMAL")
-
-    st.info(
-        "Maintenance Priority: "
-        + pm_result["maintenance_priority"]
-    )
-
-    st.markdown("### Maintenance Alerts")
-    for alert in pm_result["alerts"]:
-        st.write("- " + alert)
-
-    st.markdown("### Recommended Actions")
-    for recommendation in pm_result["recommendations"]:
-        st.write("- " + recommendation)
-
-    pdf_bytes = create_maintenance_pdf(
-        temp=st.session_state.saved_pm_temp,
-        voltage=st.session_state.saved_pm_voltage,
-        speed=st.session_state.saved_pm_speed,
-        risk_level=pm_result["risk_level"],
-        maintenance_priority=pm_result["maintenance_priority"],
-        alerts=pm_result["alerts"],
-        recommendations=pm_result["recommendations"],
-    )
-
-    st.download_button(
-        label="📄 Download Maintenance PDF Report",
-        data=pdf_bytes,
-        file_name="VehicleGPT_Maintenance_Report.pdf",
-        mime="application/pdf",
-        key="download_maintenance_pdf",
-    )
     st.markdown("### 🤖 AI Vehicle Assistant")
 
     if st.button("Explain Results with AI", key="ask_vehicle_ai"):
         with st.spinner("AI Hindi mein explanation taiyar kar raha hai..."):
-
             ai_answer = ask_vehicle_ai(
                 pm_result=pm_result,
                 temp=st.session_state.saved_pm_temp,
                 voltage=st.session_state.saved_pm_voltage,
-                speed=st.session_state.saved_pm_speed
+                speed=st.session_state.saved_pm_speed,
             )
 
         st.session_state.pm_ai_answer = ai_answer
@@ -809,6 +849,7 @@ if "pm_result" in st.session_state:
 
     for recommendation in pm_result["recommendations"]:
         st.write("- " + recommendation)
+
 
 if page == "🏠 Dashboard":
     st.title("🚗 VehicleGPT")
@@ -893,86 +934,6 @@ if page == "🏠 Dashboard":
             else:
                 st.write("• " + issue)
 
-    # Temperature gauge
-    gauge1, gauge2 = st.columns(2)
-
-    with gauge1:
-        temp_gauge = go.Figure(
-            go.Indicator(
-                mode="gauge+number",
-                value=latest_temp,
-                title={"text": "Engine Temperature (°C)"},
-                gauge={
-                    "axis": {"range": [0, 140]},
-                    "steps": [
-                        {
-                            "range": [0, 95],
-                            "color": "#1f6b4a",
-                        },
-                        {
-                            "range": [95, 110],
-                            "color": "#9a6b17",
-                        },
-                        {
-                            "range": [110, 140],
-                            "color": "#8b2d35",
-                        },
-                    ],
-                },
-            )
-        )
-
-        temp_gauge.update_layout(
-            height=250,
-            margin=dict(l=20, r=20, t=45, b=10),
-            paper_bgcolor="rgba(0,0,0,0)",
-            font_color="white",
-        )
-
-        st.plotly_chart(
-            temp_gauge,
-            use_container_width=True,
-        )
-
-    # Speed gauge
-    with gauge2:
-        speed_gauge = go.Figure(
-            go.Indicator(
-                mode="gauge+number",
-                value=latest_speed,
-                title={"text": "Vehicle Speed (km/h)"},
-                gauge={
-                    "axis": {"range": [0, 180]},
-                    "steps": [
-                        {
-                            "range": [0, 120],
-                            "color": "#1f6b4a",
-                        },
-                        {
-                            "range": [120, 150],
-                            "color": "#9a6b17",
-                        },
-                        {
-                            "range": [150, 180],
-                            "color": "#8b2d35",
-                        },
-                    ],
-                },
-            )
-        )
-
-        speed_gauge.update_layout(
-            height=250,
-            margin=dict(l=20, r=20, t=45, b=10),
-            paper_bgcolor="rgba(0,0,0,0)",
-            font_color="white",
-        )
-
-        st.plotly_chart(
-            speed_gauge,
-            use_container_width=True,
-        )
-
     # Trend chart
     st.subheader("📈 Sensor Trends")
 
@@ -990,8 +951,9 @@ if page == "🏠 Dashboard":
     )
 
     fig.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="#0B1220",
+        plot_bgcolor="#0B1220",
+        font_color="#F1F5F9",
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -1100,6 +1062,12 @@ elif page == "📊 Sensor Readings":
         title=sensor + " over time",
     )
 
+    fig.update_layout(
+        paper_bgcolor="#0B1220",
+        plot_bgcolor="#0B1220",
+        font_color="#F1F5F9",
+    )
+
     st.plotly_chart(fig, use_container_width=True)
 
     st.dataframe(
@@ -1107,8 +1075,6 @@ elif page == "📊 Sensor Readings":
         use_container_width=True,
         hide_index=True,
     )
-
-
 # ---------------------- Rule-Based Alerts -----------------
 
 elif page == "🤖 Rule-Based Alerts":
