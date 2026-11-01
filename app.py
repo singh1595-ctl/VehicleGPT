@@ -567,6 +567,8 @@ def predictive_maintenance(engine_temp, battery_voltage, speed):
 
 # ---------------------- AI Vehicle Assistant ----------------------
 
+from openai import OpenAI
+
 def ask_vehicle_ai(pm_result, temp, voltage, speed):
     prompt = f"""
     Tum VehicleGPT ke AI Vehicle Assistant ho.
@@ -595,28 +597,28 @@ def ask_vehicle_ai(pm_result, temp, voltage, speed):
     Bina evidence ke kisi fault ki pushti mat karo.
     """
 
-
     try:
-        response = requests.post(
-            "http://localhost:11434/api/generate",
-            json={
-                "model": "llama3.2:1b",
-                "prompt": prompt,
-                "stream": False,
-            },
-            timeout=120,
+        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Tum VehicleGPT ke helpful AI Vehicle Assistant ho."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.4,
         )
 
-        response.raise_for_status()
+        return response.choices[0].message.content
 
-        return response.json().get(
-            "response",
-            "AI se jawab nahi mila."
-        )
-
-    except requests.RequestException as e:
+    except Exception as e:
         return f"AI connection error: {e}"
-
 # ---------------------- Session Data ----------------------
 
 if "vehicle_data" not in st.session_state:
