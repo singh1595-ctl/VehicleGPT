@@ -858,13 +858,7 @@ if st.button("Explain Results with AI", key="ask_vehicle_ai"):
     else:
         with st.spinner("AI Hindi mein explanation taiyar kar raha hai..."):
 
-            ai_answer = ask_vehicle_ai(
-                pm_result=st.session_state.pm_result,
-                temp=st.session_state.get("saved_pm_temp", 0),
-                voltage=st.session_state.get("saved_pm_voltage", 0),
-                speed=st.session_state.get("saved_pm_speed", 0),
-            )
-
+            ai_answer = "AI Assistant फिलहाल बंद है। बाकी VehicleGPT features इस्तेमाल कर सकते हैं।"
         st.session_state.pm_ai_answer = ai_answer
 
 
