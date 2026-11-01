@@ -6,3 +6,4 @@ joblib
 plotly
 reportlab
 openai
+SpeechRecognition
