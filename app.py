@@ -870,28 +870,42 @@ if st.button("Explain Results with AI", key="ask_vehicle_ai"):
 if "pm_ai_answer" in st.session_state:
     st.markdown("#### AI Explanation")
     st.write(st.session_state.pm_ai_answer)
-    st.info(
-        "Maintenance Priority: "
-        + pm_result["maintenance_priority"]
-    )
 
+    # Saved maintenance result lena
+    pm_result = st.session_state.get("pm_result", {})
+
+    # Maintenance Priority
+    priority = pm_result.get("maintenance_priority", "Not specified")
+    st.info(f"Maintenance Priority: {priority}")
+
+    # Maintenance Alerts
     st.markdown("### Maintenance Alerts")
 
-    for alert in pm_result["alerts"]:
-        if alert.startswith("CRITICAL"):
-            st.error(alert)
-        elif alert.startswith("WARNING"):
-            st.warning(alert)
-        elif alert.startswith("INVALID"):
-            st.info(alert)
-        else:
-            st.success(alert)
+    alerts = pm_result.get("alerts", [])
 
+    if alerts:
+        for alert in alerts:
+            if alert.startswith("CRITICAL"):
+                st.error(alert)
+            elif alert.startswith("WARNING"):
+                st.warning(alert)
+            elif alert.startswith("INVALID"):
+                st.info(alert)
+            else:
+                st.success(alert)
+    else:
+        st.info("Koi maintenance alert available nahi hai.")
+
+    # Recommended Actions
     st.markdown("### Recommended Actions")
 
-    for recommendation in pm_result["recommendations"]:
-        st.write("- " + recommendation)
+    recommendations = pm_result.get("recommendations", [])
 
+    if recommendations:
+        for recommendation in recommendations:
+            st.write("- " + str(recommendation))
+    else:
+        st.info("Abhi koi recommended action available nahi hai.")
 
 if page == "🏠 Dashboard":
     st.title("🚗 VehicleGPT")
