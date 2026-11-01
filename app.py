@@ -578,22 +578,23 @@ def ask_vehicle_ai(pm_result, temp, voltage, speed):
     Vehicle speed: {speed} km/h
 
     Predictive Maintenance risk:
-    {pm_result["risk_level"]}
+    {pm_result.get("risk_level", "Not specified")}
 
     Maintenance priority:
-    {pm_result["maintenance_priority"]}
+    {pm_result.get("maintenance_priority", "Not specified")}
 
     Alerts:
-    {pm_result["alerts"]}
+    {pm_result.get("alerts", [])}
 
     Recommended actions:
-    {pm_result["recommendations"]}
+    {pm_result.get("recommendations", [])}
 
     Risk ka matlab samjhao.
     User ko batao ki ab kya karna chahiye.
     Zarurat hone par mechanic se jaanch karwane ki salah do.
     Bina evidence ke kisi fault ki pushti mat karo.
     """
+
 
     try:
         response = requests.post(
@@ -799,35 +800,76 @@ with gauge2:
 # ---------------- Analyze Maintenance ----------------
 
 if st.button("Analyze Maintenance Status", key="pm_analyze"):
-    # Yahan apna purana analysis wala code rakhein
-    ...
 
-    st.markdown("### 🤖 AI Vehicle Assistant")
+    # Sensor values
+    pm_temp = st.session_state.get("saved_pm_temp", pm_temp)
+    pm_voltage = st.session_state.get("saved_pm_voltage", 12)
+    pm_speed = st.session_state.get("saved_pm_speed", pm_speed)
 
-    if st.button("Explain Results with AI", key="ask_vehicle_ai"):
+    # Maintenance risk calculate karna
+    if pm_temp >= 110 or pm_voltage < 10:
+        risk_level = "CRITICAL"
+        risk_message = "Vehicle ko turant check karwana chahiye."
+
+    elif pm_temp >= 95 or pm_voltage < 11:
+        risk_level = "HIGH"
+        risk_message = "Vehicle ki maintenance check karne ki zaroorat hai."
+
+    else:
+        risk_level = "NORMAL"
+        risk_message = "Sensor readings normal range mein hain."
+
+    # AI assistant ke liye result save karna
+    pm_result = {
+    "risk_level": risk_level,
+    "maintenance_priority": risk_level,
+    "temperature": pm_temp,
+    "voltage": pm_voltage,
+    "speed": pm_speed,
+    "message": risk_message,
+}
+
+    st.session_state.pm_result = pm_result
+
+    # Risk result dikhana
+    st.markdown("### Maintenance Risk Assessment")
+
+    if risk_level == "CRITICAL":
+        st.error(f"Risk Level: {risk_level} — {risk_message}")
+
+    elif risk_level == "HIGH":
+        st.warning(f"Risk Level: {risk_level} — {risk_message}")
+
+    else:
+        st.success(f"Risk Level: {risk_level} — {risk_message}")
+
+
+# ---------------- AI Vehicle Assistant ----------------
+
+st.markdown("### 🤖 AI Vehicle Assistant")
+
+if st.button("Explain Results with AI", key="ask_vehicle_ai"):
+
+    if "pm_result" not in st.session_state:
+        st.warning("Pehle Analyze Maintenance Status button dabayein.")
+
+    else:
         with st.spinner("AI Hindi mein explanation taiyar kar raha hai..."):
+
             ai_answer = ask_vehicle_ai(
-                pm_result=pm_result,
-                temp=st.session_state.saved_pm_temp,
-                voltage=st.session_state.saved_pm_voltage,
-                speed=st.session_state.saved_pm_speed,
+                pm_result=st.session_state.pm_result,
+                temp=st.session_state.get("saved_pm_temp", 0),
+                voltage=st.session_state.get("saved_pm_voltage", 0),
+                speed=st.session_state.get("saved_pm_speed", 0),
             )
 
         st.session_state.pm_ai_answer = ai_answer
 
-    if "pm_ai_answer" in st.session_state:
-        st.markdown("#### AI Explanation")
-        st.write(st.session_state.pm_ai_answer)
 
-    st.markdown("### Maintenance Risk Assessment")
-
-    if pm_result["risk_level"] == "CRITICAL":
-        st.error("Risk Level: CRITICAL")
-    elif pm_result["risk_level"] == "HIGH":
-        st.warning("Risk Level: HIGH")
-    else:
-        st.success("Risk Level: NORMAL")
-
+# AI explanation dikhana
+if "pm_ai_answer" in st.session_state:
+    st.markdown("#### AI Explanation")
+    st.write(st.session_state.pm_ai_answer)
     st.info(
         "Maintenance Priority: "
         + pm_result["maintenance_priority"]
